@@ -214,13 +214,13 @@ sap.ui.define([
       // You can ignore tagImage for now; it's here to match the real call signature.
 
       return {
-        materialId: "MAT-PRG-2048",
-        batch: "LOT-7F92A",
+        materialId: "7000001003", 
+        batch: "5011",
         storageClass: "Cold (≤ -18°C)",
 
         remainingUsableLifePct: 72,
-        risk: "GREEN",                 // GREEN | YELLOW | RED
-        exposureClock: "ACTIVE",        // ACTIVE | INACTIVE
+        risk: "GREEN",
+        exposureClock: "ACTIVE",
         totalExposureHrs: 128,
         maxAllowedHrs: 480,
 
@@ -302,10 +302,10 @@ sap.ui.define([
             justifyContent: "SpaceBetween",
             items: [
               new Text({ text: "Material ID: " + (r.materialId || "-") }),
-              new Text({ text: "Batch: " + (r.batch || "-") })
+              new Text({ text: "Batch: " + (r.batch || "-") }),
+              new Text({ text: "Storage Class: " + (r.storageClass || "-") })
             ]
-          }),
-          new Text({ text: "Storage Class: " + (r.storageClass || "-") })
+          })
         ]
       }).addStyleClass("sapUiSmallMarginBottom");
 
@@ -352,9 +352,17 @@ sap.ui.define([
         ]
       });
 
-      this._oResultDialog.addContent(header);
+      const contentBox = new VBox({
+        width: "100%",
+        items: [header, middle, footer]
+      })
+      .addStyleClass("sapUiResponsiveContentPadding");
+      
+      this._oResultDialog.addContent(contentBox);
+
+      /* this._oResultDialog.addContent(header);
       this._oResultDialog.addContent(middle);
-      this._oResultDialog.addContent(footer);
+      this._oResultDialog.addContent(footer); */
 
       this._oResultDialog.open();
     },
