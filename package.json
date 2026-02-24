@@ -1,0 +1,32 @@
+{
+  "name": "shellLifeAnalyzer",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "dependencies": {
+    "@cap-js/hana": "^2",
+    "@sap/cds": "^9",
+    "express": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2",
+    "@sap/cds-dk": "^9",
+    "cds-plugin-ui5": "^0.13.0",
+    "rimraf": "^5.0.5",
+    "mbt": "^1.2.29"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-shellapp": "cds watch --open hackathon.shellapp/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "undeploy": "cf undeploy shellLifeAnalyzer --delete-services --delete-service-keys --delete-service-brokers",
+    "build": "rimraf resources mta_archives && mbt build --mtar archive",
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
+  },
+  "private": true,
+  "cds": {},
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/shellapp"
+  ]
+}

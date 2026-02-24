@@ -1,0 +1,112 @@
+<mvc:View
+    controllerName="hackathon.shellapp.controller.main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <!-- === PAGE === -->
+    <Page id="pageMain" title="Shelf Life Analyzer" enableScrolling="true" class="sapUiResponsiveContentPadding">
+        <content>
+            <!-- === FIXED TOP AREA === -->
+            <VBox id="vboxFixedTop">
+                <HBox id="hboxActions" alignItems="End" justifyContent="End">
+                    <Button id="btnScan" text="Scan CET Tag" type="Emphasized" icon="sap-icon://bar-code" class="sapUiSmallMarginEnd" press=".onScanTag"/>
+                    <Button id="btnDownload" text="Download Report" icon="sap-icon://download" press=".onDownload"/>
+                </HBox>
+
+                <HBox id="hboxTop" width="100%" alignItems="End" justifyContent="SpaceBetween" class="sapUiSmallMarginBottom">
+                    <HBox id="hboxFilters">
+                        <VBox id="boxMatnr" width="12rem" class="sapUiSmallMarginEnd">
+                            <Label id="lblMatnr" text="Material"/>
+                            <Input id="inpMatnr" value="{filters>/MATNR}" placeholder="e.g. MAT-001"/>
+                        </VBox>
+
+                        <VBox id="boxWerks" width="10rem" class="sapUiSmallMarginEnd">
+                            <Label id="lblWerks" text="Plant"/>
+                            <Input id="inpWerks" value="{filters>/WERKS}" placeholder="e.g. 1000"/>
+                        </VBox>
+
+                        <VBox id="boxCharg" width="12rem" class="sapUiSmallMarginEnd">
+                            <Label id="lblCharg" text="Batch"/>
+                            <Input id="inpCharg" value="{filters>/CHARG}" placeholder="e.g. BATCH01"/>
+                        </VBox>
+
+                        <VBox id="boxStatus" width="10rem" class="sapUiSmallMarginEnd">
+                            <Label id="lblStatus" text="Status"/>
+                            <Select id="selStatus" selectedKey="{filters>/Status}">
+                                <core:Item id="item1" key="" text="All"/>
+                                <core:Item id="item2" key="Green" text="Green"/>
+                                <core:Item id="item3" key="Yellow" text="Yellow"/>
+                                <core:Item id="item4" key="Red" text="Red"/>
+                            </Select>
+                        </VBox>
+
+                        <HBox id="boxSearchButtons" alignItems="End">
+                            <Button id="btnSearch" text="Search" type="Emphasized" class="sapUiSmallMarginEnd" press=".onSearch"/>
+                            <Button id="btnClear" text="Clear" press=".onClear"/>
+                        </HBox>
+                    </HBox>
+                </HBox>
+            </VBox>
+
+            <!-- ================= SCROLLABLE CONTENT ================= -->
+            <VBox id="scrollVBox">
+                <Toolbar id="tbTableHeader">
+                    <Title id="titleMaterials" text="Materials"/>
+                    <ToolbarSpacer id="toolbarSpacer"/>
+                    <Text id="txtCount"/>
+                </Toolbar>
+
+                <Table id="tblMaterials" growing="true" growingScrollToLoad="true" items="{ path: '/MaterialShelfLife' }">
+                    <columns>
+                    <Column id="colMatnr"><Text id="hdrMatnr" text="Material"/></Column>
+                    <Column id="colWerks"><Text id="hdrWerks" text="Plant"/></Column>
+                    <Column id="colCharg"><Text id="hdrCharg" text="Batch"/></Column>
+                    <Column id="colHsdat"><Text id="hdrHsdat" text="Mfg Date"/></Column>
+                    <Column id="colVfdat"><Text id="hdrVfdat" text="Expiry Date"/></Column>
+                    <Column id="colRemaining" hAlign="End"><Text id="hdrRemaining" text="Remaining (Days)"/></Column>
+                    <Column id="colStatus"><Text id="hdrStatus" text="Status"/></Column>
+                </columns>
+
+
+                    <!-- ⚠️ NO IDs INSIDE TEMPLATE -->
+                    <items>
+                        <ColumnListItem id="column1">
+                            <cells>
+                                <Text id="text1" text="{MATNR}"/>
+                                <Text id="text2" text="{WERKS}"/>
+                                <Text id="text3" text="{CHARG}"/>
+                                <Text id="text4"
+                                    text="{
+                                        path: 'HSDAT',
+                                        type: 'sap.ui.model.odata.type.Date',
+                                        formatOptions: { style: 'medium' }
+                                    }"/>
+                                    <Text id="text5"
+                                        text="{
+                                            path: 'VFDAT',
+                                            type: 'sap.ui.model.odata.type.Date',
+                                            formatOptions: { style: 'medium' }
+                                    }"/>
+
+                                <ObjectNumber id="objNumID" number="{RemainingDays}" unit="days"/>
+                                <ObjectStatus id="objStatID" text="{Status}" state="{ path: 'Criticality', formatter: '.criticalityToState' }"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+
+            <!-- Hidden file input for capturing/selecting tag photo -->
+            <core:HTML
+                id="htmlTagCapture"
+                content="&lt;input id='tagFileInput'
+                    type='file'
+                    accept='image/*'
+                    capture='environment'
+                    style='display:none' /&gt;" 
+            />
+
+        </content>
+    </Page>
+</mvc:View>

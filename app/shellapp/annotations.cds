@@ -1,0 +1,1 @@
+using ShelfLifeService as service from '../../srv/service';
