@@ -15,6 +15,7 @@ sap.ui.define([
   "sap/m/Text",
   "sap/m/ObjectStatus",
   "sap/m/ProgressIndicator",
+  "sap/ui/model/Sorter",
   "sap/ui/Device"
 ], function (
   Controller,
@@ -33,6 +34,7 @@ sap.ui.define([
   Text,
   ObjectStatus,
   ProgressIndicator,
+  Sorter,
   Device
 ) {
   "use strict";
@@ -54,7 +56,14 @@ sap.ui.define([
       // Avoid calling getBinding too early — update count once table finishes updating
       const oTable = this.byId("tblMaterials");
       if (oTable) {
-        oTable.attachEventOnce("updateFinished", this._updateCount.bind(this));
+        oTable.attachEventOnce("updateFinished", () => {
+          const oBinding = oTable.getBinding("items");
+          if (oBinding) {
+            // Criticality: 1 Red, 2 Yellow, 3 Green -> ascending puts Red first
+            oBinding.sort([new Sorter("Criticality", false)]);
+          }
+          this._updateCount();
+        });
       }
     },
 
@@ -84,6 +93,7 @@ sap.ui.define([
       if (f.Status) aFilters.push(new Filter("Status", FilterOperator.EQ, f.Status));
 
       oBinding.filter(aFilters);
+      oBinding.sort([new Sorter("Criticality", false)]);
       this._updateCount();
     },
 
@@ -113,6 +123,7 @@ sap.ui.define([
           { label: "Mfg Date", property: "HSDAT", type: EdmType.Date },
           { label: "Expiry Date", property: "VFDAT", type: EdmType.Date },
           { label: "Remaining (Days)", property: "RemainingDays", type: EdmType.Number },
+          { label: "Exposure Time (Hours)", property: "EXDAT", type: EdmType.Number },
           { label: "Status", property: "Status", type: EdmType.String }
         ];
 
@@ -172,10 +183,10 @@ sap.ui.define([
             // Call agent (stub for now)
             const result = await this._callTagAgentStub(this._tagImage);
 
-            // Show output popup (your requested “card” style)
+            // Show output popup
             this._openResultDialog(result);
 
-            // Map JSON -> filters + status, then run search
+            // Map JSON to filters
             this._applyAgentResultToFilters(result);
 
             MessageToast.show("Tag processed ✅");
@@ -211,24 +222,61 @@ sap.ui.define([
 
     // ===== Agent stub (Offline demo) =====
     _callTagAgentStub: async function (tagImage) {
-      // You can ignore tagImage for now; it's here to match the real call signature.
+      const fileName = (tagImage && tagImage.fileName) ? String(tagImage.fileName) : "";
 
-      return {
-        materialId: "7000001003", 
-        batch: "5011",
-        storageClass: "Cold (≤ -18°C)",
+      if (fileName === "CET Tag - Red.png") {
+        return {
+          materialId: "CFRP-IM7-8552",
+          batch: "LOT-PG2198",
+          storageClass: "Cold (≤ -18°C)",
 
-        remainingUsableLifePct: 72,
-        risk: "GREEN",
-        exposureClock: "ACTIVE",
-        totalExposureHrs: 128,
-        maxAllowedHrs: 480,
+          remainingUsableLifePct: 0,
+          risk: "RED",
+          exposureClock: "ACTIVE",
+          totalExposureHrs: 96,
+          maxAllowedHrs: 480,
 
-        lastEvaluated: "2026-02-19 14:32",
-        qaHoldRequired: "NO",
+          lastEvaluated: new Date().toLocaleString(),
+          qaHoldRequired: "YES",
 
-        confidence: 0.93
-      };
+          confidence: 0.93
+        };
+      } else if (fileName === "CET Tag - Green.png") {
+        return {
+          materialId: "7000001001",
+          batch: "B357031",
+          storageClass: "Cold (≤ -18°C)",
+
+          remainingUsableLifePct: 73,
+          risk: "GREEN",
+          exposureClock: "ACTIVE",
+          totalExposureHrs: 480,
+          maxAllowedHrs: 600,
+
+          lastEvaluated: new Date().toLocaleString(),
+          qaHoldRequired: "NO",
+
+          confidence: 0.93
+        };
+      } else {
+        return {
+          materialId: "7000001003",
+          batch: "B121507",
+          storageClass: "Cold (≤ -18°C)",
+
+          remainingUsableLifePct: 72,
+          risk: "GREEN",
+          exposureClock: "ACTIVE",
+          totalExposureHrs: 128,
+          maxAllowedHrs: 480,
+
+          lastEvaluated: new Date().toLocaleString(),
+          qaHoldRequired: "NO",
+
+          confidence: 0.93
+        };
+      }
+      
 
       /*
       // =============================
@@ -258,13 +306,7 @@ sap.ui.define([
       if (!oFiltersModel) return;
 
       if (r.materialId) oFiltersModel.setProperty("/MATNR", r.materialId);
-      if (r.batch)      oFiltersModel.setProperty("/CHARG", r.batch);
-
-      // Map risk -> your filter Status (Green/Yellow/Red)
-      if (r.risk) {
-        const status = (r.risk === "GREEN") ? "Green" : (r.risk === "YELLOW") ? "Yellow" : "Red";
-        oFiltersModel.setProperty("/Status", status);
-      }
+      if (r.batch) oFiltersModel.setProperty("/CHARG", r.batch);
 
       this.onSearch();
     },
@@ -291,7 +333,7 @@ sap.ui.define([
 
       const riskState =
         (r.risk === "GREEN") ? "Success" :
-        (r.risk === "YELLOW") ? "Warning" : "Error";
+          (r.risk === "YELLOW") ? "Warning" : "Error";
 
       const pct = (r.remainingUsableLifePct != null) ? Number(r.remainingUsableLifePct) : 0;
 
@@ -356,8 +398,8 @@ sap.ui.define([
         width: "100%",
         items: [header, middle, footer]
       })
-      .addStyleClass("sapUiResponsiveContentPadding");
-      
+        .addStyleClass("sapUiResponsiveContentPadding");
+
       this._oResultDialog.addContent(contentBox);
 
       /* this._oResultDialog.addContent(header);

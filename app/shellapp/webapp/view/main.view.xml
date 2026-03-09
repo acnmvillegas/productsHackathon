@@ -59,16 +59,15 @@
 
                 <Table id="tblMaterials" growing="true" growingScrollToLoad="true" items="{ path: '/MaterialShelfLife' }">
                     <columns>
-                    <Column id="colMatnr"><Text id="hdrMatnr" text="Material"/></Column>
-                    <Column id="colWerks"><Text id="hdrWerks" text="Plant"/></Column>
-                    <Column id="colCharg"><Text id="hdrCharg" text="Batch"/></Column>
-                    <Column id="colHsdat"><Text id="hdrHsdat" text="Mfg Date"/></Column>
-                    <Column id="colVfdat"><Text id="hdrVfdat" text="Expiry Date"/></Column>
-                    <Column id="colRemaining" hAlign="End"><Text id="hdrRemaining" text="Remaining (Days)"/></Column>
-                    <Column id="colStatus"><Text id="hdrStatus" text="Status"/></Column>
-                </columns>
-
-
+                        <Column id="colMatnr"><Text id="hdrMatnr" text="Material"/></Column>
+                        <Column id="colWerks"><Text id="hdrWerks" text="Plant"/></Column>
+                        <Column id="colCharg"><Text id="hdrCharg" text="Batch"/></Column>
+                        <Column id="colHsdat"><Text id="hdrHsdat" text="Mfg Date"/></Column>
+                        <Column id="colVfdat"><Text id="hdrVfdat" text="Expiry Date"/></Column>
+                        <Column id="colRemaining" hAlign="End"><Text id="hdrRemaining" text="Remaining (Days)"/></Column>
+                        <Column id="colExposure" hAlign="End"><Text id="hdrexposure" text="Exposure Time"/></Column>
+                        <Column id="colStatus"><Text id="hdrStatus" text="Status"/></Column>
+                    </columns>
                     <!-- ⚠️ NO IDs INSIDE TEMPLATE -->
                     <items>
                         <ColumnListItem id="column1">
@@ -90,6 +89,7 @@
                                     }"/>
 
                                 <ObjectNumber id="objNumID" number="{RemainingDays}" unit="days"/>
+                                <ObjectNumber id="objExpID" number="{EXDAT}" unit="hours"/>
                                 <ObjectStatus id="objStatID" text="{Status}" state="{ path: 'Criticality', formatter: '.criticalityToState' }"/>
                             </cells>
                         </ColumnListItem>

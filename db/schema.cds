@@ -11,14 +11,17 @@ entity MaterialShelfLife {
       VFDAT            : Date          @title: 'Shelf Life Expiration / BBD';
       HSDAT            : Date          @title: 'Date of Manufacture';
       TOTAL_SHELF_LIFE : Integer       @title: 'Total Shelf Life';
+      EXDAT            : Integer       @title: 'Cumulative Exposure Time (hrs)';
 
-  @cds.persistence.skip
-  RemainingDays        : Integer       @title: 'Remaining Shelf Life (Days)';
+      @cds.persistence.skip
+      RemainingDays    : Integer       @title: 'Remaining Shelf Life (Days)';
 
-  @cds.persistence.skip
-  Status               : String(10)     @title: 'Status'; // Green | Yellow | Red
+      @cds.persistence.skip
+      RemainingPct     : Decimal(5, 2) @title: 'Remaining Usable Life %';
 
-  @cds.persistence.skip
-  Criticality          : Integer       @title: 'Criticality'; // 3=Green,2=Yellow,1=Red
+      @cds.persistence.skip
+      Status           : String(10)    @title: 'Status'; // Green | Yellow | Red
 
+      @cds.persistence.skip
+      Criticality      : Integer       @title: 'Criticality'; // 3=Green,2=Yellow,1=Red
 }
